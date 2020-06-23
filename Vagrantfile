@@ -1,5 +1,5 @@
 Vagrant.configure("2") do |config|
-    config.vm.box = "local/hashistack"
+    config.vm.box = "hashistack"
     config.vm.network "private_network", ip: "10.0.3.10"
 
     # Hashicorp consul ui

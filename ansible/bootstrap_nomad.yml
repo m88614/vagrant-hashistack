@@ -1,9 +1,46 @@
-tasks:
-  - name: acl bootstrap nomad
-    shell:
-      cmd: (nomad acl bootstrap > management.token) && awk '/Secret/ {print $4}' management.token
-    register: management_token
+# management token 85f37f65-af0e-2442-623d-1baea373eed3
 
-  - name: remove acl token file
-    shell:
-      cmd: rm -f management.token
+- name: acl bootstrap nomad
+  shell:
+    cmd: (nomad acl bootstrap > management.token) && awk '/Secret/ {print $4}' management.token
+  register: management_token
+
+- debug: msg="{{ management_token.stdout }}"
+
+- name: "create /etc/nomad.d/policies/ dir"
+  file:
+    path: /etc/nomad.d/policies/
+    state: directory
+
+- name: symlink all policies
+  copy:
+    src: "{{item}}"
+    dest: "/etc/nomad.d/policies/"
+#  file:
+#    src: "{{ item }}"
+#    dest: "/etc/nomad.d/policies/"
+#    state: link
+#  loop: "{{ policies }}"
+  with_fileglob:
+    - "/vagrant/ansible/templates/nomad_policies/*"
+
+- name: start nomad secrets backend
+  shell:
+    cmd: vault secrets enable nomad
+  environment:
+    VAULT_ADDR: http://127.0.0.1:8200
+    VAULT_TOKEN: master
+
+- name: create policies
+  shell:
+    cmd: nomad acl policy apply -token {{ management_token.stdout }} -description "Test write policy" write-test /etc/nomad.d/policies/write.policy.hcl
+#    cmd: nomad acl policy apply -token 85f37f65-af0e-2442-623d-1baea373eed3 -description "Test write policy" write-test /etc/nomad.d/policies/write.policy.hcl
+
+- name: create policy read
+  shell:
+    cmd: nomad acl policy apply -token {{ management_token.stdout }} -description "Test read policy" read-test /etc/nomad.d/policies/read.policy.hcl
+#    cmd: nomad acl policy apply -token 85f37f65-af0e-2442-623d-1baea373eed3 -description "Test read policy" read-test /etc/nomad.d/policies/read.policy.hcl
+
+#- name: remove acl token file
+#  shell:
+#    cmd: rm -f management.token

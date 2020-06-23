@@ -18,6 +18,11 @@
         src: startup.yml
         dest: /etc/ansible/startup.yml
 
+    - name: Copy ansible bootstrap_nomad playbook
+      copy:
+        src: bootstrap_nomad.yml
+        dest: /etc/ansible/bootstrap_nomad.yml
+
     - name: Install unzip
       apt: pkg=unzip state=latest
 

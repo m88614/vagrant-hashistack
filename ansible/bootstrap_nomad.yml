@@ -1,0 +1,9 @@
+tasks:
+  - name: acl bootstrap nomad
+    shell:
+      cmd: (nomad acl bootstrap > management.token) && awk '/Secret/ {print $4}' management.token
+    register: management_token
+
+  - name: remove acl token file
+    shell:
+      cmd: rm -f management.token

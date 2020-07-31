@@ -135,6 +135,14 @@
       lineinfile: dest=/home/vagrant/.bashrc line="export VAULT_ADDR=http://127.0.0.1:8200"
       when: test_grep.stdout == "0"
 
+    - name: Checking for entry VAULT_TOKEN env in .bashrc
+      shell: cat /home/vagrant/.bashrc | grep "export VAULT_TOKEN" | wc -l
+      register: check_token
+
+    - name: Append VAULT_TOKEN
+      lineinfile: dest=/home/vagrant/.bashrc line="export VAULT_TOKEN=master"
+      when: check_token.stdout == "0"
+
 # Additional config for conditional startup
     - name: Copy acl template config for consul
       copy:

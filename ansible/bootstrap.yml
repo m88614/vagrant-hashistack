@@ -91,6 +91,22 @@
       include_tasks: nomad_acl_bootstrap.yml
       when: nomad_agent_acl_enable|bool == true
 
+    - name: Checking for entry VAULT_TOKEN env in .bashrc
+      shell: cat /home/vagrant/.bashrc | grep "export VAULT_TOKEN" | wc -l
+      register: check_vault_token
+
+    - name: Append VAULT_TOKEN
+      lineinfile: dest=/home/vagrant/.bashrc line="export VAULT_TOKEN=master"
+      when: check_vault_token.stdout == "0"
+
+    - name: Checking for entry NOMAD_TOKEN env in .bashrc
+      shell: cat /home/vagrant/.bashrc | grep "export NOMAD_TOKEN" | wc -l
+      register: check_nomad_token
+
+    - name: Append VAULT_TOKEN
+      lineinfile: dest=/home/vagrant/.bashrc line="export NOMAD_TOKEN=master"
+      when: check_nomad_token.stdout == "0"
+
     - name: Create roles for nomad in vault
       include_tasks: vault_nomad_integration.yml
       when: nomad_agent_acl_enable|bool == true

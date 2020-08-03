@@ -1,0 +1,12 @@
+- hosts: all
+  become: yes
+  tasks:
+#    - name: Checking for entry VAULT_TOKEN env in .bashrc
+#      shell: cat /home/vagrant/.bashrc | grep "export VAULT_TOKEN" | wc -l
+#      register: check_token
+#
+#    - name: Append VAULT_TOKEN
+#      lineinfile: dest=/home/vagrant/.bashrc line="export VAULT_TOKEN=master"
+#      when: check_token.stdout == "0"
+    - debug:
+        msg: "{{ lookup('hashi_vault', 'secret=secret/nomad-bootstrap-token:secret-id token=master')}}"
